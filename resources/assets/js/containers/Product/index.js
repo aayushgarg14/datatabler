@@ -2,11 +2,11 @@ import React, { Component, Fragment } from "react";
 import axios from "axios";
 import Button from '@material-ui/core/Button'
 
-import Table from "../UI/Table";
+import Table from "../../components/Table";
 import "./styles.css";
-import Spinner from "../UI/Spinner";
-import TextInput from "../UI/Input";
-import Modal from '../UI/Modal/index';
+import Spinner from "../../components/Spinner";
+import TextInput from "../../components/Input";
+import Modal from '../../components/Modal';
 
 class Products extends Component {
     constructor(props) {
@@ -30,6 +30,7 @@ class Products extends Component {
         this.deleteItem = this.deleteItem.bind(this)
         this.onCreateProduct = this.onCreateProduct.bind(this)
         this.onProductManipulate = this.onProductManipulate.bind(this)
+        this.onCloseModal = this.onCloseModal.bind(this)
     }
 
     componentDidMount() {
@@ -95,6 +96,10 @@ class Products extends Component {
         this.setState({ show: false })
     }
 
+    onCloseModal() {
+        this.setState({ show: false })
+    }
+
     renderModal(type) {
         const { name, description, quantity, show } = this.state
         console.log('state', this.state);
@@ -123,14 +128,21 @@ class Products extends Component {
                         </Fragment>
                     }
                     <div className="FormButton">
-                        <Button variant="contained" onClick={() => this.onProductManipulate(type)}>
-                            {type === 'create'
-                                ? 'Create'
-                                : 'edit'
-                                    ? 'Edit'
-                                    : 'Delete'
-                            }
+                        <div className="FormButtonEach">
+                            <Button variant="contained" onClick={() => this.onProductManipulate(type)}>
+                                {type === 'create'
+                                    ? 'Create'
+                                    : 'edit'
+                                        ? 'Edit'
+                                        : 'Delete'
+                                }
+                            </Button>
+                        </div>
+                        <div className="FormButtonEach">
+                            <Button variant="contained" onClick={this.onCloseModal}>
+                                Cancel
                         </Button>
+                        </div>
                     </div>
                 </div>
             </Modal>

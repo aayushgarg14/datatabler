@@ -34,7 +34,12 @@
 }
 
 .FormButton {
+    display: flex;
     margin: 20px;
+}
+
+.FormButtonEach {
+    padding-right: 10px
 }
 
 /* spinner */
