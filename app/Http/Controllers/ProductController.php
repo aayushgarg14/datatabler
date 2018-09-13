@@ -9,8 +9,19 @@ class ProductController extends Controller
 {
     public function index() 
     {
-        $products = Product::all();
-        return $products->toJson();
+        $products = Product::paginate(2);
+        $response = [
+            'pagination' => [
+                'total' => $products->total(),
+                'per_page' => $products->perPage(),
+                'current_page' => $products->currentPage(),
+                'last_page' => $products->lastPage(),
+                'from' => $products->firstItem(),
+                'to' => $products->lastItem()
+            ],
+            'data' => $products
+        ];
+        return response()->json($response);
     }
 
     public function store(Request $request)

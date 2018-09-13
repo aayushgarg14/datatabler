@@ -1,6 +1,7 @@
 import React, { Component, Fragment } from "react";
 import axios from "axios";
 import Button from '@material-ui/core/Button'
+import { Pagination } from 'react-bootstrap'
 
 import Table from "../../components/Table";
 import "./styles.css";
@@ -23,7 +24,10 @@ class Products extends Component {
             name: '',
             quantity: '',
             description: '',
-            id: ''
+            id: '',
+            activePage: 1,
+            pagination: {},
+            getUrl: '/api/products'
         };
 
         this.updateInputHandler = this.updateInputHandler.bind(this)
@@ -32,22 +36,32 @@ class Products extends Component {
         this.onCreateProduct = this.onCreateProduct.bind(this)
         this.onProductManipulate = this.onProductManipulate.bind(this)
         this.onCloseModal = this.onCloseModal.bind(this)
+        this.pageChangeHandler = this.pageChangeHandler.bind(this)
     }
 
     componentDidMount() {
         this.setState({
             axios: true
         });
-        axios.get('/api/products').then(response => {
-            console.log('response', response.data);
+        this.getProductsList()
+    }
+
+    getProductsList() {
+        console.log(this.state.getUrl);
+
+        axios.get(this.state.getUrl).then(response => {
+            console.log(response);
+
             let data = [];
-            data.push.apply(data, response.data);
+            data.push.apply(data, response.data.data.data);
             this.setState({
                 data,
+                pagination: response.data.pagination,
                 axios: false
             });
         }).catch(err => {
             console.log(err.response);
+
             this.setState({
                 axios: false
             })
@@ -55,23 +69,25 @@ class Products extends Component {
     }
 
     updateInputHandler(key, event) {
-        console.log('key, value: ', key, event.target.value);
         var partialState = {};
         partialState[key] = event.target.value;
         this.setState(partialState);
     }
 
+    pageChangeHandler(number) {
+        console.log(number);
+        this.setState({ getUrl: `/api/products?page=${number}` }, this.getProductsList)
+    }
+
     onEditDetails(id) {
-        console.log('here editing', id);
-        console.log(this.state.data[id-1]);
-        const data = this.state.data[id-1]
-        this.setState({ 
-            id, 
+        const data = this.state.data[id - 1]
+        this.setState({
+            id,
             name: data.name,
             description: data.description,
-            quantity: data.quantity, 
-            show: true, 
-            edit: true 
+            quantity: data.quantity,
+            show: true,
+            edit: true
         })
     }
 
@@ -90,7 +106,6 @@ class Products extends Component {
         }
         switch (type) {
             case 'create':
-                console.log(data);
 
                 axios.post('/api/products', data).then(response => {
                     console.log(response);
@@ -106,7 +121,6 @@ class Products extends Component {
                 })
                 break;
             case 'delete':
-                console.log('Hey ther... Deleting');
                 axios.delete(`/api/products/${id}`).then(response => {
                     console.log(response);
                 }).catch(err => {
@@ -123,10 +137,27 @@ class Products extends Component {
         this.setState({ show: false, edit: false, create: false, deleteRow: false })
     }
 
+    pagination() {
+        const { pagination } = this.state
+        if (pagination.current_page) {
+            let active = pagination.current_page;
+            let items = [];
+            for (let number = 1; number <= pagination.last_page; number++) {
+                items.push(
+                    <Pagination.Item key={number} onClick={() => this.pageChangeHandler(number)} active={number === active}>{number}</Pagination.Item>
+                );
+            }
+
+            return (
+                <div>
+                    <Pagination bsSize="medium">{items}</Pagination>
+                </div>
+            );
+        }
+    }
+
     renderModal(type) {
         const { name, description, quantity, show } = this.state
-        console.log('state', this.state);        
-
         return (
             <Modal show={show}>
                 <div className="InputForm">
@@ -179,8 +210,7 @@ class Products extends Component {
             : edit
                 ? 'edit'
                 : 'delete'
-        console.log(type);
-        
+
         return !axios
             ? (
                 <div className="Container">
@@ -204,6 +234,9 @@ class Products extends Component {
                                     onDeleteProduct={this.onDeleteProduct} />
                             </div>
                         }
+                    </div>
+                    <div className="Pagination">
+                        {this.pagination()}
                     </div>
                     {this.renderModal(type)}
                 </div>

@@ -16,7 +16,11 @@
 .MainContainer {
     display: flex;
     flex-direction: row;
-    flex: 1
+}
+
+.Pagination {
+    display: flex;
+    justify-content: center
 }
 
 .TableList {
@@ -26,6 +30,8 @@
 }
 
 .NoProducts {
+    flex: 1;
+    display: flex;
     justify-content: center;
     margin-top: 40px
 }
