@@ -2,34 +2,15 @@
     position: fixed;
     z-index: 1000;
     background-color: white;
-    width: 100%;
     box-shadow: 0 1px 1px #ccc;
     border: 1px solid #eee;
-    width: 600px;
     margin: 6% auto 0;
     background: #fff;
     box-shadow: 0 0 32px 0 rgba(0,0,0,.15);
     padding: 16px;
-    left: 15%;
-    top: 15%;
     box-sizing: border-box;
     transition: all 0s ease-out;
-}
-
-@media (min-width: 701px) {
-    .Modal {
-        width: 600px;
-        margin: 0 auto;
-        left: calc(50% - 350px);
-    }
-}
-
-@media (max-width: 700px) {
-    .Modal {
-        width: 80%;
-        padding: 0;
-        margin: auto;
-        left: 5%;
-        right: 5%;
-    }
+    width: 50%;
+    left: 50%;
+    margin-left: -25%;
 }

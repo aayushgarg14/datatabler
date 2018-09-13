@@ -12,22 +12,23 @@ class Products extends Component {
     constructor(props) {
         super(props)
         this.state = {
-            headers: ["id", "Name", "Quantity", "Description"],
+            headers: ["id", "Name", "Quantity", "Description", ""],
             data: [],
             axios: false,
             create: false,
             edit: false,
+            deleteRow: false,
             selectUserType: null,
             show: false,
             name: '',
             quantity: '',
-            description: ''
+            description: '',
+            id: ''
         };
 
         this.updateInputHandler = this.updateInputHandler.bind(this)
-        this.editItem = this.editItem.bind(this)
-        this.updateItem = this.updateItem.bind(this)
-        this.deleteItem = this.deleteItem.bind(this)
+        this.onEditDetails = this.onEditDetails.bind(this)
+        this.onDeleteProduct = this.onDeleteProduct.bind(this)
         this.onCreateProduct = this.onCreateProduct.bind(this)
         this.onProductManipulate = this.onProductManipulate.bind(this)
         this.onCloseModal = this.onCloseModal.bind(this)
@@ -60,27 +61,35 @@ class Products extends Component {
         this.setState(partialState);
     }
 
-    editItem() {
-
+    onEditDetails(id) {
+        console.log('here editing', id);
+        console.log(this.state.data[id-1]);
+        const data = this.state.data[id-1]
+        this.setState({ 
+            id, 
+            name: data.name,
+            description: data.description,
+            quantity: data.quantity, 
+            show: true, 
+            edit: true 
+        })
     }
-    updateItem() {
 
+    onDeleteProduct(id) {
+        this.setState({ id, show: true, deleteRow: true })
     }
-
-    deleteItem() { }
 
     onCreateProduct() {
-        this.setState({ show: true, create: true, edit: false })
+        this.setState({ show: true, create: true })
     }
 
     onProductManipulate(type) {
-        const { name, quantity, description } = this.state
-        let data = {}
+        const { name, quantity, description, id } = this.state
+        let data = {
+            name, quantity, description
+        }
         switch (type) {
             case 'create':
-                data = {
-                    name, quantity, description
-                }
                 console.log(data);
 
                 axios.post('/api/products', data).then(response => {
@@ -89,20 +98,34 @@ class Products extends Component {
                     console.log(err.response);
                 })
                 break;
-
+            case 'edit':
+                axios.put(`/api/products/${id}`, data).then(response => {
+                    console.log(response);
+                }).catch(err => {
+                    console.log(err.response);
+                })
+                break;
+            case 'delete':
+                console.log('Hey ther... Deleting');
+                axios.delete(`/api/products/${id}`).then(response => {
+                    console.log(response);
+                }).catch(err => {
+                    console.log(err.response);
+                })
+                break;
             default:
                 break;
         }
-        this.setState({ show: false })
+        this.setState({ show: false, edit: false, create: false, deleteRow: false })
     }
 
     onCloseModal() {
-        this.setState({ show: false })
+        this.setState({ show: false, edit: false, create: false, deleteRow: false })
     }
 
     renderModal(type) {
         const { name, description, quantity, show } = this.state
-        console.log('state', this.state);
+        console.log('state', this.state);        
 
         return (
             <Modal show={show}>
@@ -132,7 +155,7 @@ class Products extends Component {
                             <Button variant="contained" onClick={() => this.onProductManipulate(type)}>
                                 {type === 'create'
                                     ? 'Create'
-                                    : 'edit'
+                                    : type === 'edit'
                                         ? 'Edit'
                                         : 'Delete'
                                 }
@@ -156,7 +179,8 @@ class Products extends Component {
             : edit
                 ? 'edit'
                 : 'delete'
-
+        console.log(type);
+        
         return !axios
             ? (
                 <div className="Container">
@@ -173,7 +197,11 @@ class Products extends Component {
                         {!data.length
                             ? <div className="NoProducts">No Products To Display!!!</div>
                             : <div className="TableList">
-                                <Table headers={headers} data={data} />
+                                <Table
+                                    headers={headers}
+                                    data={data}
+                                    onEditDetails={this.onEditDetails}
+                                    onDeleteProduct={this.onDeleteProduct} />
                             </div>
                         }
                     </div>

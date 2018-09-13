@@ -29,4 +29,23 @@ class ProductController extends Controller
 
         return response()->json('Product created!');
     }
+
+    public function update(Request $request, $id)
+    {
+        $product = Product::find($id);
+        $product->name = $request->get('name');
+        $product->quantity = $request->get('quantity');
+        $product->description = $request->get('description');
+        $product->save();
+
+        return response()->json('Product Updated Successfully!!!');
+    }
+
+    public function delete($id)
+    {
+        $product = Product::find($id);
+        $product->delete();
+
+        return response()->json('Product Deleted Successfully!!!');
+    }
 }
