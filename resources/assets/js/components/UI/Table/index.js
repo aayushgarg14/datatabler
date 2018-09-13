@@ -15,6 +15,7 @@ const Table = ({ headers, data }) => {
                     <tr key={each.id}>
                         <td>{each.id}</td>
                         <td>{each.name}</td>
+                        <td>{each.quantity}</td>
                         <td>{each.description}</td>
                     </tr>
                 ))}

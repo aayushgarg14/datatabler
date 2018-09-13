@@ -23,6 +23,11 @@
     flex: 1
 }
 
+.NoProducts {
+    justify-content: center;
+    margin-top: 40px
+}
+
 .InputForm {
     display: flex;
     flex-direction: column;

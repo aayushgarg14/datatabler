@@ -12,8 +12,8 @@ class Products extends Component {
     constructor(props) {
         super(props)
         this.state = {
-            headers: ["id", "Name", "Description"],
-            data: [{ id: "1", name: "Aayush Garg", description: "A Front End Developer" }],
+            headers: ["id", "Name", "Quantity", "Description"],
+            data: [],
             axios: false,
             create: false,
             edit: false,
@@ -28,7 +28,6 @@ class Products extends Component {
         this.editItem = this.editItem.bind(this)
         this.updateItem = this.updateItem.bind(this)
         this.deleteItem = this.deleteItem.bind(this)
-        this.createItem = this.createItem.bind(this)
         this.onCreateProduct = this.onCreateProduct.bind(this)
         this.onProductManipulate = this.onProductManipulate.bind(this)
     }
@@ -40,7 +39,7 @@ class Products extends Component {
         axios.get('/api/products').then(response => {
             console.log('response', response.data);
             let data = [];
-            data.push.apply(data, response.data.data.users);
+            data.push.apply(data, response.data);
             this.setState({
                 data,
                 axios: false
@@ -68,7 +67,6 @@ class Products extends Component {
     }
 
     deleteItem() { }
-    createItem() { }
 
     onCreateProduct() {
         this.setState({ show: true, create: true, edit: false })
@@ -86,10 +84,8 @@ class Products extends Component {
 
                 axios.post('/api/products', data).then(response => {
                     console.log(response);
-
                 }).catch(err => {
                     console.log(err.response);
-
                 })
                 break;
 
@@ -162,9 +158,12 @@ class Products extends Component {
                         </Button>
                     </div>
                     <div className="MainContainer">
-                        <div className="TableList">
-                            <Table headers={headers} data={data} />
-                        </div>
+                        {!data.length
+                            ? <div className="NoProducts">No Products To Display!!!</div>
+                            : <div className="TableList">
+                                <Table headers={headers} data={data} />
+                            </div>
+                        }
                     </div>
                     {this.renderModal(type)}
                 </div>
