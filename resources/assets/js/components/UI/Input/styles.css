@@ -1,0 +1,27 @@
+.InputContainer {
+    border: 1px solid #ddd;    
+    display: flex;
+    flex-direction: row;
+    margin: 20px;
+}
+
+.InputIcon {
+    padding: 10px;
+    padding-right: 0;
+    background: #fff
+}
+
+.Input {
+    border: none;
+    flex: 1;
+    padding: 10px
+}
+
+Input:focus{
+    outline: none;
+}
+
+.CheckBox {
+    width: 200px;
+    padding: 10px
+}

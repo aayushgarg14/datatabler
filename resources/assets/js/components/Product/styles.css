@@ -1,0 +1,42 @@
+.Container {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    padding: 40px
+}
+
+.ButtonContainer {
+    display: flex;
+    justify-content: flex-end;
+    padding: 20px
+}
+
+.MainContainer {
+    display: flex;
+    flex-direction: row;
+    flex: 1
+}
+
+.TableList {
+    margin-top: 20px;
+    display: flex;
+    flex: 1
+}
+
+.InputForm {
+    display: flex;
+    flex-direction: column;
+}
+
+.FormButton {
+    margin: 20px;
+}
+
+/* spinner */
+
+.SpinnerContainer {
+    display: flex;
+    flex: 1;
+    margin-top: 30%;
+    margin-left: 50%;
+}
