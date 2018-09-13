@@ -10,21 +10,23 @@ class ProductController extends Controller
     public function index() 
     {
         $products = Product::all();
-        return response()->json($products);
+        return $products->toJson();
     }
 
     public function store(Request $request)
     {
         $validateData = $request->validate([
             'name' => 'required',
+            'quantity' => 'required',
             'description' => 'required'
         ]);
 
-        $project = Project::create([
+        $products = Product::create([
             'name' => $validateData['name'],
+            'quantity' => $validateData['quantity'],
             'description' => $validateData['description']
         ]);
 
-        return response()->json('Project created!');
+        return response()->json('Product created!');
     }
 }

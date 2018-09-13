@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React, { Component, Fragment } from "react";
 import axios from "axios";
 import Button from '@material-ui/core/Button'
 
@@ -16,28 +16,28 @@ class Products extends Component {
             data: [{ id: "1", name: "Aayush Garg", description: "A Front End Developer" }],
             axios: false,
             create: false,
+            edit: false,
             selectUserType: null,
             show: false,
             name: '',
+            quantity: '',
             description: ''
         };
 
+        this.updateInputHandler = this.updateInputHandler.bind(this)
         this.editItem = this.editItem.bind(this)
         this.updateItem = this.updateItem.bind(this)
         this.deleteItem = this.deleteItem.bind(this)
         this.createItem = this.createItem.bind(this)
         this.onCreateProduct = this.onCreateProduct.bind(this)
-        this.onSubmitProduct = this.onSubmitProduct.bind(this)
+        this.onProductManipulate = this.onProductManipulate.bind(this)
     }
 
     componentDidMount() {
         this.setState({
             axios: true
         });
-        axios({
-            url: `/api/products`,
-            method: "GET"
-        }).then(response => {
+        axios.get('/api/products').then(response => {
             console.log('response', response.data);
             let data = [];
             data.push.apply(data, response.data.data.users);
@@ -46,11 +46,18 @@ class Products extends Component {
                 axios: false
             });
         }).catch(err => {
-            console.log(err);
+            console.log(err.response);
             this.setState({
                 axios: false
             })
         })
+    }
+
+    updateInputHandler(key, event) {
+        console.log('key, value: ', key, event.target.value);
+        var partialState = {};
+        partialState[key] = event.target.value;
+        this.setState(partialState);
     }
 
     editItem() {
@@ -64,18 +71,83 @@ class Products extends Component {
     createItem() { }
 
     onCreateProduct() {
-        this.setState({ show: true })
+        this.setState({ show: true, create: true, edit: false })
     }
 
-    onSubmitProduct() {
+    onProductManipulate(type) {
+        const { name, quantity, description } = this.state
+        let data = {}
+        switch (type) {
+            case 'create':
+                data = {
+                    name, quantity, description
+                }
+                console.log(data);
+
+                axios.post('/api/products', data).then(response => {
+                    console.log(response);
+
+                }).catch(err => {
+                    console.log(err.response);
+
+                })
+                break;
+
+            default:
+                break;
+        }
         this.setState({ show: false })
     }
 
-    render() {
+    renderModal(type) {
+        const { name, description, quantity, show } = this.state
         console.log('state', this.state);
-        console.log('props', this.props);
 
-        const { headers, data, axios, show } = this.state;
+        return (
+            <Modal show={show}>
+                <div className="InputForm">
+                    {type === 'delete'
+                        ? <div>Are you sure you want to delete?</div>
+                        : <Fragment>
+                            <TextInput
+                                type="text"
+                                placeholder="Name"
+                                value={name}
+                                onChange={(val) => this.updateInputHandler('name', val)} />
+                            <TextInput
+                                type="number"
+                                placeholder="Quantity"
+                                value={quantity}
+                                onChange={(val) => this.updateInputHandler('quantity', val)} />
+                            <TextInput
+                                type="text"
+                                placeholder="Description"
+                                value={description}
+                                onChange={(val) => this.updateInputHandler('description', val)} />
+                        </Fragment>
+                    }
+                    <div className="FormButton">
+                        <Button variant="contained" onClick={() => this.onProductManipulate(type)}>
+                            {type === 'create'
+                                ? 'Create'
+                                : 'edit'
+                                    ? 'Edit'
+                                    : 'Delete'
+                            }
+                        </Button>
+                    </div>
+                </div>
+            </Modal>
+        )
+    }
+
+    render() {
+        const { headers, data, axios, create, edit } = this.state;
+        const type = create
+            ? 'create'
+            : edit
+                ? 'edit'
+                : 'delete'
 
         return !axios
             ? (
@@ -94,15 +166,7 @@ class Products extends Component {
                             <Table headers={headers} data={data} />
                         </div>
                     </div>
-                    <Modal show={show}>
-                        <div className="InputForm">
-                            <TextInput type="text" placeholder="Name" />
-                            <TextInput type="text" placeholder="Description" />
-                            <div className="FormButton">
-                                <Button variant="contained" onClick={this.onSubmitProduct}>Create</Button>
-                            </div>
-                        </div>
-                    </Modal>
+                    {this.renderModal(type)}
                 </div>
             )
             : (

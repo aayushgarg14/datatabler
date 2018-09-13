@@ -1,8 +1,6 @@
 import React from 'react'
 
-const Table = ({ headers, data }) => {
-    console.log(headers, data);
-    
+const Table = ({ headers, data }) => {    
     return (
         <table className="table table-hover">
             <thead>
