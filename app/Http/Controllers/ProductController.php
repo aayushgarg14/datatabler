@@ -9,7 +9,11 @@ class ProductController extends Controller
 {
     public function index() 
     {
-        $products = Product::paginate(2);
+        $products = Product::orderBy('name', 'asc');
+        if(!is_null($filters['type'])) {
+            $products = $products->where('type', '=', $filters['type']);
+        }
+        $products = $products->paginate(2);
         $response = [
             'pagination' => [
                 'total' => $products->total(),
@@ -28,12 +32,16 @@ class ProductController extends Controller
     {
         $validateData = $request->validate([
             'name' => 'required',
+            'amount' => 'required',
+            'type' => 'required',
             'quantity' => 'required',
             'description' => 'required'
         ]);
 
         $products = Product::create([
             'name' => $validateData['name'],
+            'amount' => $validateData['amount'],
+            'type' => $validateData['type'],
             'quantity' => $validateData['quantity'],
             'description' => $validateData['description']
         ]);
@@ -45,6 +53,8 @@ class ProductController extends Controller
     {
         $product = Product::find($id);
         $product->name = $request->get('name');
+        $product->amount = $request->get('amount');
+        $product->type = $request->get('type');
         $product->quantity = $request->get('quantity');
         $product->description = $request->get('description');
         $product->save();

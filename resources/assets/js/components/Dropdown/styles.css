@@ -1,0 +1,10 @@
+.DropdownContainer {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    margin: 20px
+}
+
+.SelectInput {
+    width: 380px
+}

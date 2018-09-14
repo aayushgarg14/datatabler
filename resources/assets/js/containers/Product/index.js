@@ -8,12 +8,19 @@ import "./styles.css";
 import Spinner from "../../components/Spinner";
 import TextInput from "../../components/Input";
 import Modal from '../../components/Modal';
+import Dropdown from "../../components/Dropdown";
+
+let types = [
+    { value: 'cleanser', label: 'Face Cleansers' },
+    { value: 'toner', label: 'Toner and Mists' },
+    { value: 'eye', label: 'Eye Care' }
+];
 
 class Products extends Component {
     constructor(props) {
         super(props)
         this.state = {
-            headers: ["id", "Name", "Quantity", "Description", ""],
+            headers: ["id", "Name", "Amount(each)", "Type", "Stock Remaining", "Description", ""],
             data: [],
             axios: false,
             create: false,
@@ -23,11 +30,14 @@ class Products extends Component {
             show: false,
             name: '',
             quantity: '',
+            amount: '',
             description: '',
             id: '',
             activePage: 1,
             pagination: {},
-            getUrl: '/api/products'
+            getUrl: '/api/products',
+            radio: '',
+            typeSelected: null
         };
 
         this.updateInputHandler = this.updateInputHandler.bind(this)
@@ -37,6 +47,8 @@ class Products extends Component {
         this.onProductManipulate = this.onProductManipulate.bind(this)
         this.onCloseModal = this.onCloseModal.bind(this)
         this.pageChangeHandler = this.pageChangeHandler.bind(this)
+        this.selectRadioHandler = this.selectRadioHandler.bind(this)
+        this.changeDropDownHandler = this.changeDropDownHandler.bind(this)
     }
 
     componentDidMount() {
@@ -44,6 +56,19 @@ class Products extends Component {
             axios: true
         });
         this.getProductsList()
+    }
+
+    selectRadioHandler(e) {
+        const value = e.target.value
+        console.log(value);
+        
+        this.setState({ 
+            radio: value, 
+            getUrl: `/api/products?type=${value}` }, this.getProductsList)
+    }
+
+    changeDropDownHandler(typeSelected) {
+        this.setState({ typeSelected });
     }
 
     getProductsList() {
@@ -88,6 +113,8 @@ class Products extends Component {
         this.setState({
             id,
             name: dataEach.name,
+            amount: dataEach.amount,
+            type: dataEach.type,
             description: dataEach.description,
             quantity: dataEach.quantity,
             show: true,
@@ -104,13 +131,17 @@ class Products extends Component {
     }
 
     onProductManipulate(type) {
-        const { name, quantity, description, id } = this.state
+        const { name, amount, typeSelected, quantity, description, id } = this.state
+
         let data = {
-            name, quantity, description
+            name, amount, type: typeSelected.label, quantity, description
         }
+
+        console.log(data);
+        
+        
         switch (type) {
             case 'create':
-
                 axios.post('/api/products', data).then(response => {
                     console.log(response);
                 }).catch(err => {
@@ -161,7 +192,7 @@ class Products extends Component {
     }
 
     renderModal(type) {
-        const { name, description, quantity, show } = this.state
+        const { name, amount, typeSelected, description, quantity, show } = this.state
         return (
             <Modal show={show}>
                 <div className="InputForm">
@@ -173,6 +204,16 @@ class Products extends Component {
                                 placeholder="Name"
                                 value={name}
                                 onChange={(val) => this.updateInputHandler('name', val)} />
+                            <TextInput
+                                type="number"
+                                placeholder="Amount(per piece) in Rs."
+                                value={amount}
+                                onChange={(val) => this.updateInputHandler('amount', val)} />
+                            <Dropdown
+                                placeholder="Type of Product"
+                                value={typeSelected}
+                                onChangeHandler={this.changeDropDownHandler}
+                                options={types} />
                             <TextInput
                                 type="number"
                                 placeholder="Quantity"
@@ -219,6 +260,31 @@ class Products extends Component {
             ? (
                 <div className="Container">
                     <div className="ButtonContainer">
+                        <div className="UpperContainer">
+                            <div className="UpperQues">
+                                <div className="InnerText">Filter</div>
+                            </div>
+                            <div className="UpperRadio" onChange={this.selectRadioHandler}>
+                                <div className="pretty p-default p-round">
+                                    <input value="Face Cleansers" type="radio" name="radio1" />
+                                    <div className="state">
+                                        <label className="RadioText">Face Cleansers</label>
+                                    </div>
+                                </div>
+                                <div className="pretty p-default p-round">
+                                    <input value="Toner and Mists" type="radio" name="radio1" />
+                                    <div className="state">
+                                        <label className="RadioText">Toner and Mists</label>
+                                    </div>
+                                </div>
+                                <div className="pretty p-default p-round">
+                                    <input value="Eye Care" type="radio" name="radio1" />
+                                    <div className="state">
+                                        <label className="RadioText">Eye Care</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                         <Button
                             onClick={this.onCreateProduct}
                             variant="contained"

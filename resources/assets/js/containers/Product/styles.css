@@ -9,9 +9,37 @@
 
 .ButtonContainer {
     display: flex;
-    justify-content: flex-end;
+    justify-content: space-between;
     padding: 20px
 }
+
+/* Filter */
+
+.UpperContainer {
+    display: flex;
+    align-items: center
+}
+
+.UpperQues {
+    margin-right: 20px;
+    font-size: 16px;
+    background-color: blue
+}
+
+.InnerText {
+    padding: 10px;
+    color: white
+}
+
+.UpperRadio {
+    display: flex;
+}
+
+.RadioText {
+    color: #818078
+}
+
+/* main */
 
 .MainContainer {
     display: flex;

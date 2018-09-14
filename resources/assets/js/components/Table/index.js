@@ -20,6 +20,8 @@ const Table = ({ headers, data, onEditDetails, onDeleteProduct }) => {
                     <tr key={each.id}>
                         <td>{each.id}</td>
                         <td>{each.name}</td>
+                        <td>Rs. {each.amount}</td>
+                        <td>{each.type}</td>
                         <td>{each.quantity}</td>
                         <td>{each.description}</td>
                         <td>
