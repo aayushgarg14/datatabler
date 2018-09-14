@@ -61,10 +61,14 @@ class Products extends Component {
     selectRadioHandler(e) {
         const value = e.target.value
         console.log(value);
-        
-        this.setState({ 
-            radio: value, 
-            getUrl: `/api/products?type=${value}` }, this.getProductsList)
+        let getUrl= `/api/products?type=${value}`
+        if(value === 'all') {
+            getUrl='/api/products'
+        }
+        this.setState({
+            radio: value,
+            getUrl,
+        }, this.getProductsList)
     }
 
     changeDropDownHandler(typeSelected) {
@@ -138,8 +142,8 @@ class Products extends Component {
         }
 
         console.log(data);
-        
-        
+
+
         switch (type) {
             case 'create':
                 axios.post('/api/products', data).then(response => {
@@ -281,6 +285,12 @@ class Products extends Component {
                                     <input value="Eye Care" type="radio" name="radio1" />
                                     <div className="state">
                                         <label className="RadioText">Eye Care</label>
+                                    </div>
+                                </div>
+                                <div className="pretty p-default p-round">
+                                    <input value="all" type="radio" name="radio1" />
+                                    <div className="state">
+                                        <label className="RadioText">All</label>
                                     </div>
                                 </div>
                             </div>

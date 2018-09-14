@@ -7,12 +7,11 @@ use App\Product;
 
 class ProductController extends Controller 
 {
-    public function index() 
+    public function index(Request $request) 
     {
-        $products = Product::orderBy('name', 'asc');
-        if(!is_null($filters['type'])) {
-            $products = $products->where('type', '=', $filters['type']);
-        }
+        // $products = Product::orderBy('name', 'asc');
+
+        $products = Product::filter($request);
         $products = $products->paginate(2);
         $response = [
             'pagination' => [
