@@ -2,6 +2,8 @@ import React, { Component, Fragment } from "react";
 import axios from "axios";
 import Button from '@material-ui/core/Button'
 import { Pagination } from 'react-bootstrap'
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 import Table from "../../components/Table";
 import "./styles.css";
@@ -11,9 +13,9 @@ import Modal from '../../components/Modal';
 import Dropdown from "../../components/Dropdown";
 
 let types = [
-    { value: 'cleanser', label: 'Face Cleansers' },
-    { value: 'toner', label: 'Toner and Mists' },
-    { value: 'eye', label: 'Eye Care' }
+    { value: 'Face Cleansers', label: 'Face Cleansers' },
+    { value: 'Toner and Mists', label: 'Toner and Mists' },
+    { value: 'Eye Care', label: 'Eye Care' }
 ];
 
 class Products extends Component {
@@ -36,7 +38,7 @@ class Products extends Component {
             activePage: 1,
             pagination: {},
             getUrl: '/api/products',
-            radio: '',
+            radio: 'all',
             typeSelected: null
         };
 
@@ -60,10 +62,9 @@ class Products extends Component {
 
     selectRadioHandler(e) {
         const value = e.target.value
-        console.log(value);
-        let getUrl= `/api/products?type=${value}`
-        if(value === 'all') {
-            getUrl='/api/products'
+        let getUrl = `/api/products?type=${value}`
+        if (value === 'all') {
+            getUrl = '/api/products'
         }
         this.setState({
             radio: value,
@@ -75,12 +76,8 @@ class Products extends Component {
         this.setState({ typeSelected });
     }
 
-    getProductsList() {
-        console.log(this.state.getUrl);
-
+    getProductsList() {        
         axios.get(this.state.getUrl).then(response => {
-            console.log(response);
-
             let data = [];
             data.push.apply(data, response.data.data.data);
             this.setState({
@@ -90,7 +87,6 @@ class Products extends Component {
             });
         }).catch(err => {
             console.log(err.response);
-
             this.setState({
                 axios: false
             })
@@ -104,8 +100,11 @@ class Products extends Component {
     }
 
     pageChangeHandler(number) {
-        console.log(number);
-        this.setState({ getUrl: `/api/products?page=${number}` }, this.getProductsList)
+        let getUrl = `/api/products?page=${number}`
+        if(this.state.radio !== 'all' && this.state.radio !== '') {
+            getUrl = `/api/products?page=${number}&type=${this.state.radio}`
+        }
+        this.setState({ getUrl }, this.getProductsList)
     }
 
     onEditDetails(id) {
@@ -113,12 +112,12 @@ class Products extends Component {
         var dataEach = data.find(each => {
             return each.id === id
         });
-
+        const typeSelected = { value: dataEach.type, label: dataEach.type }
         this.setState({
             id,
             name: dataEach.name,
             amount: dataEach.amount,
-            type: dataEach.type,
+            typeSelected,
             description: dataEach.description,
             quantity: dataEach.quantity,
             show: true,
@@ -136,32 +135,43 @@ class Products extends Component {
 
     onProductManipulate(type) {
         const { name, amount, typeSelected, quantity, description, id } = this.state
-
-        let data = {
-            name, amount, type: typeSelected.label, quantity, description
-        }
-
-        console.log(data);
-
+        let data = {}
 
         switch (type) {
             case 'create':
+                data = {
+                    name, amount, type: typeSelected.label, quantity, description
+                }
                 axios.post('/api/products', data).then(response => {
-                    console.log(response);
+                    if (response.data === 'Product created!') {
+                        toast.success(response.data)
+                        this.getProductsList()
+                    } else {
+                        toast.error('Some error occured!')
+                    }
                 }).catch(err => {
                     console.log(err.response);
                 })
                 break;
             case 'edit':
-                axios.put(`/api/products/${id}`, data).then(response => {
-                    console.log(response);
+                data = {
+                    name, amount, type: typeSelected.label, quantity, description
+                }
+                axios.put(`/api/products/${id}`, data).then(response => {                    
+                    if (response.data === 'Product Updated Successfully!!!') {
+                        toast.success(response.data)
+                        this.getProductsList()
+                    }
                 }).catch(err => {
                     console.log(err.response);
                 })
                 break;
             case 'delete':
                 axios.delete(`/api/products/${id}`).then(response => {
-                    console.log(response);
+                    if (response.data === 'Product Deleted Successfully!!!') {
+                        toast.success(response.data)
+                        this.getProductsList()
+                    }
                 }).catch(err => {
                     console.log(err.response);
                 })
@@ -210,7 +220,7 @@ class Products extends Component {
                                 onChange={(val) => this.updateInputHandler('name', val)} />
                             <TextInput
                                 type="number"
-                                placeholder="Amount(per piece) in Rs."
+                                placeholder="Amount(per piece) in USD"
                                 value={amount}
                                 onChange={(val) => this.updateInputHandler('amount', val)} />
                             <Dropdown
@@ -260,72 +270,79 @@ class Products extends Component {
                 ? 'edit'
                 : 'delete'
 
-        return !axios
-            ? (
-                <div className="Container">
-                    <div className="ButtonContainer">
-                        <div className="UpperContainer">
-                            <div className="UpperQues">
-                                <div className="InnerText">Filter</div>
+        return (
+            <div className="Container">
+                <ToastContainer />
+                <div className="ButtonContainer">
+                    <div className="UpperContainer">
+                        <div className="UpperQues">
+                            <div className="InnerText">Filter</div>
+                        </div>
+                        <div className="UpperRadio" onChange={this.selectRadioHandler}>
+                            <div className="pretty p-default p-curve">
+                                <input value="Face Cleansers" type="radio" name="radio1" />
+                                <div className="state p-primary-o">
+                                    <label className="RadioText">Face Cleansers</label>
+                                </div>
                             </div>
-                            <div className="UpperRadio" onChange={this.selectRadioHandler}>
-                                <div className="pretty p-default p-round">
-                                    <input value="Face Cleansers" type="radio" name="radio1" />
-                                    <div className="state">
-                                        <label className="RadioText">Face Cleansers</label>
-                                    </div>
+                            <div className="pretty p-default p-curve">
+                                <input value="Toner and Mists" type="radio" name="radio1" />
+                                <div className="state p-primary-o">
+                                    <label className="RadioText">Toner and Mists</label>
                                 </div>
-                                <div className="pretty p-default p-round">
-                                    <input value="Toner and Mists" type="radio" name="radio1" />
-                                    <div className="state">
-                                        <label className="RadioText">Toner and Mists</label>
-                                    </div>
+                            </div>
+                            <div className="pretty p-default p-curve">
+                                <input value="Eye Care" type="radio" name="radio1" />
+                                <div className="state p-primary-o">
+                                    <label className="RadioText">Eye Care</label>
                                 </div>
-                                <div className="pretty p-default p-round">
-                                    <input value="Eye Care" type="radio" name="radio1" />
-                                    <div className="state">
-                                        <label className="RadioText">Eye Care</label>
-                                    </div>
-                                </div>
-                                <div className="pretty p-default p-round">
-                                    <input value="all" type="radio" name="radio1" />
-                                    <div className="state">
-                                        <label className="RadioText">All</label>
-                                    </div>
+                            </div>
+                            <div className="pretty p-default p-curve">
+                                <input value="all" type="radio" name="radio1" />
+                                <div className="state p-primary-o">
+                                    <label className="RadioText">All</label>
                                 </div>
                             </div>
                         </div>
-                        <Button
-                            onClick={this.onCreateProduct}
-                            variant="contained"
-                            color="default"
-                            className="button">
-                            Create User
+                    </div>
+                    <Button
+                        onClick={this.onCreateProduct}
+                        variant="contained"
+                        color="default"
+                        className="button">
+                        Create User
                         </Button>
-                    </div>
-                    <div className="MainContainer">
-                        {!data.length
-                            ? <div className="NoProducts">No Products To Display!!!</div>
-                            : <div className="TableList">
-                                <Table
-                                    headers={headers}
-                                    data={data}
-                                    onEditDetails={this.onEditDetails}
-                                    onDeleteProduct={this.onDeleteProduct} />
+                </div>
+                {!axios
+                    ? (
+                        <Fragment>
+                            <div className="MainContainer">
+                                {!data.length
+                                    ? <div className="NoProducts">No Products To Display!!!</div>
+                                    : <div className="TableList">
+                                        <Table
+                                            headers={headers}
+                                            data={data}
+                                            onEditDetails={this.onEditDetails}
+                                            onDeleteProduct={this.onDeleteProduct} />
+                                    </div>
+                                }
                             </div>
-                        }
-                    </div>
-                    <div className="Pagination">
-                        {this.pagination()}
-                    </div>
-                    {this.renderModal(type)}
+                        </Fragment>
+                    )
+                    : (
+                        <div className="SpinnerContainer">
+                            <Spinner />
+                        </div>
+                    )
+                }
+                <div className="Pagination">
+                    {this.pagination()}
                 </div>
-            )
-            : (
-                <div className="SpinnerContainer">
-                    <Spinner />
-                </div>
-            );
+                {this.renderModal(type)}
+            </div>
+
+        );
     }
 }
 

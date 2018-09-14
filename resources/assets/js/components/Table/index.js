@@ -19,11 +19,11 @@ const Table = ({ headers, data, onEditDetails, onDeleteProduct }) => {
                 {data.map(each => (
                     <tr key={each.id}>
                         <td>{each.id}</td>
-                        <td>{each.name}</td>
-                        <td>Rs. {each.amount}</td>
+                        <td style={{ width: 250 }}>{each.name}</td>
+                        <td>${each.amount} USD</td>
                         <td>{each.type}</td>
                         <td>{each.quantity}</td>
-                        <td>{each.description}</td>
+                        <td style={{ width: 400 }}>{each.description}</td>
                         <td>
                             <IconButton onClick={() => onEditDetails(each.id)} aria-label="Edit">
                                 <EditIcon />
