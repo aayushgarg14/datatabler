@@ -18,22 +18,10 @@
     flex-direction: row;
 }
 
-.Pagination {
-    display: flex;
-    justify-content: center
-}
-
 .TableList {
     margin-top: 20px;
     display: flex;
     flex: 1
-}
-
-.NoProducts {
-    flex: 1;
-    display: flex;
-    justify-content: center;
-    margin-top: 40px
 }
 
 .InputForm {
@@ -49,6 +37,22 @@
 
 .FormButtonEach {
     padding-right: 10px
+}
+
+/* No List */
+
+.NoProducts {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    margin-top: 40px
+}
+
+/* pagination */
+
+.Pagination {
+    display: flex;
+    justify-content: center
 }
 
 /* spinner */

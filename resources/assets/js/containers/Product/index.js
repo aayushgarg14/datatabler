@@ -80,12 +80,16 @@ class Products extends Component {
     }
 
     onEditDetails(id) {
-        const data = this.state.data[id - 1]
+        const { data } = this.state
+        var dataEach = data.find(each => {
+            return each.id === id
+        });
+
         this.setState({
             id,
-            name: data.name,
-            description: data.description,
-            quantity: data.quantity,
+            name: dataEach.name,
+            description: dataEach.description,
+            quantity: dataEach.quantity,
             show: true,
             edit: true
         })
