@@ -22,7 +22,6 @@ Input:focus{
     outline: none;
 }
 
-.CheckBox {
-    width: 200px;
-    padding: 10px
+TextArea {
+    width: 350px
 }

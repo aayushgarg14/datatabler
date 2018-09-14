@@ -1,3 +1,5 @@
+/* main container */
+
 .Container {
     display: flex;
     flex-direction: column;
@@ -7,10 +9,23 @@
     background-color: white
 }
 
+/* header */
+
+.HeadingContainer {
+    display: flex;
+    justify-content: center;
+    font-size: 50px;
+    color: #636b6f;
+    font-family: 'Nunito', sans-serif;
+    padding-bottom: 40px;
+    border-bottom: 1px solid #eee
+}
+
+/* Container wrapping filter and create button */
+
 .ButtonContainer {
     display: flex;
     justify-content: space-between;
-    padding: 20px
 }
 
 /* Filter */
@@ -20,26 +35,18 @@
     align-items: center
 }
 
-.UpperQues {
+.Filter {
     margin-right: 20px;
     font-size: 16px;
-    background-color: blue
-}
-
-.InnerText {
-    padding: 10px;
-    color: white
+    color: #7f8c8d;
+    font-weight: bold
 }
 
 .UpperRadio {
     display: flex;
 }
 
-.RadioText {
-    color: #818078
-}
-
-/* main */
+/* Tables */
 
 .MainContainer {
     display: flex;
@@ -73,7 +80,7 @@
     flex: 1;
     display: flex;
     justify-content: center;
-    margin-top: 40px
+    margin: 100px
 }
 
 /* pagination */

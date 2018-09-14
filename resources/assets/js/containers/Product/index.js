@@ -1,6 +1,8 @@
 import React, { Component, Fragment } from "react";
 import axios from "axios";
 import Button from '@material-ui/core/Button'
+import { createMuiTheme, MuiThemeProvider } from '@material-ui/core/styles';
+import green from '@material-ui/core/colors/green';
 import { Pagination } from 'react-bootstrap'
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -11,6 +13,7 @@ import Spinner from "../../components/Spinner";
 import TextInput from "../../components/Input";
 import Modal from '../../components/Modal';
 import Dropdown from "../../components/Dropdown";
+import RadioButton from "../../components/RadioButton";
 
 let types = [
     { value: 'Face Cleansers', label: 'Face Cleansers' },
@@ -18,11 +21,18 @@ let types = [
     { value: 'Eye Care', label: 'Eye Care' }
 ];
 
+const theme = createMuiTheme({
+    palette: {
+        primary: green,
+    },
+});
+
 class Products extends Component {
     constructor(props) {
         super(props)
         this.state = {
             headers: ["id", "Name", "Amount(each)", "Type", "Stock Remaining", "Description", ""],
+            radioButtons: ["Face Cleansers", "Toner and Mists", "Eye Care", "all"],
             data: [],
             axios: false,
             create: false,
@@ -46,7 +56,7 @@ class Products extends Component {
         this.onEditDetails = this.onEditDetails.bind(this)
         this.onDeleteProduct = this.onDeleteProduct.bind(this)
         this.onCreateProduct = this.onCreateProduct.bind(this)
-        this.onProductManipulate = this.onProductManipulate.bind(this)
+        this.productManipulateHandler = this.productManipulateHandler.bind(this)
         this.onCloseModal = this.onCloseModal.bind(this)
         this.pageChangeHandler = this.pageChangeHandler.bind(this)
         this.selectRadioHandler = this.selectRadioHandler.bind(this)
@@ -60,23 +70,21 @@ class Products extends Component {
         this.getProductsList()
     }
 
-    selectRadioHandler(e) {
-        const value = e.target.value
-        let getUrl = `/api/products?type=${value}`
-        if (value === 'all') {
-            getUrl = '/api/products'
-        }
-        this.setState({
-            radio: value,
-            getUrl,
-        }, this.getProductsList)
+    // update inputs
+
+    updateInputHandler(key, event) {
+        var partialState = {};
+        partialState[key] = event.target.value;
+        this.setState(partialState);
     }
 
     changeDropDownHandler(typeSelected) {
         this.setState({ typeSelected });
     }
 
-    getProductsList() {        
+    // get lists 
+
+    getProductsList() {
         axios.get(this.state.getUrl).then(response => {
             let data = [];
             data.push.apply(data, response.data.data.data);
@@ -93,19 +101,21 @@ class Products extends Component {
         })
     }
 
-    updateInputHandler(key, event) {
-        var partialState = {};
-        partialState[key] = event.target.value;
-        this.setState(partialState);
+    // add filter
+
+    selectRadioHandler(e) {
+        const value = e.target.value
+        let getUrl = `/api/products?type=${value}`
+        if (value === 'all') {
+            getUrl = '/api/products'
+        }
+        this.setState({
+            radio: value,
+            getUrl,
+        }, this.getProductsList)
     }
 
-    pageChangeHandler(number) {
-        let getUrl = `/api/products?page=${number}`
-        if(this.state.radio !== 'all' && this.state.radio !== '') {
-            getUrl = `/api/products?page=${number}&type=${this.state.radio}`
-        }
-        this.setState({ getUrl }, this.getProductsList)
-    }
+    // action buttons -> edit, delete, create
 
     onEditDetails(id) {
         const { data } = this.state
@@ -133,7 +143,9 @@ class Products extends Component {
         this.setState({ show: true, create: true })
     }
 
-    onProductManipulate(type) {
+    // perform actions -> create, edit, delete
+
+    productManipulateHandler(type) {
         const { name, amount, typeSelected, quantity, description, id } = this.state
         let data = {}
 
@@ -157,10 +169,12 @@ class Products extends Component {
                 data = {
                     name, amount, type: typeSelected.label, quantity, description
                 }
-                axios.put(`/api/products/${id}`, data).then(response => {                    
+                axios.put(`/api/products/${id}`, data).then(response => {
                     if (response.data === 'Product Updated Successfully!!!') {
                         toast.success(response.data)
                         this.getProductsList()
+                    } else {
+                        toast.error('Some error occured!')
                     }
                 }).catch(err => {
                     console.log(err.response);
@@ -171,6 +185,8 @@ class Products extends Component {
                     if (response.data === 'Product Deleted Successfully!!!') {
                         toast.success(response.data)
                         this.getProductsList()
+                    } else {
+                        toast.error('Some error occured!')
                     }
                 }).catch(err => {
                     console.log(err.response);
@@ -182,18 +198,29 @@ class Products extends Component {
         this.setState({ show: false, edit: false, create: false, deleteRow: false })
     }
 
-    onCloseModal() {
-        this.setState({ show: false, edit: false, create: false, deleteRow: false })
+    // pagination
+
+    pageChangeHandler(number) {
+        let getUrl = `/api/products?page=${number}`
+        if (this.state.radio !== 'all' && this.state.radio !== '') {
+            getUrl = `/api/products?page=${number}&type=${this.state.radio}`
+        }
+        this.setState({ getUrl }, this.getProductsList)
     }
 
-    pagination() {
+    renderPagination() {
         const { pagination } = this.state
         if (pagination.current_page) {
             let active = pagination.current_page;
             let items = [];
             for (let number = 1; number <= pagination.last_page; number++) {
                 items.push(
-                    <Pagination.Item key={number} onClick={() => this.pageChangeHandler(number)} active={number === active}>{number}</Pagination.Item>
+                    <Pagination.Item
+                        key={number}
+                        onClick={() => this.pageChangeHandler(number)}
+                        active={number === active}>
+                        {number}
+                    </Pagination.Item>
                 );
             }
 
@@ -203,6 +230,12 @@ class Products extends Component {
                 </div>
             );
         }
+    }
+
+    // modal
+
+    onCloseModal() {
+        this.setState({ show: false, edit: false, create: false, deleteRow: false })
     }
 
     renderModal(type) {
@@ -234,15 +267,15 @@ class Products extends Component {
                                 value={quantity}
                                 onChange={(val) => this.updateInputHandler('quantity', val)} />
                             <TextInput
-                                type="text"
-                                placeholder="Description"
+                                isTextArea={true}
+                                placeholder="Add description here..."
                                 value={description}
                                 onChange={(val) => this.updateInputHandler('description', val)} />
                         </Fragment>
                     }
                     <div className="FormButton">
                         <div className="FormButtonEach">
-                            <Button variant="contained" onClick={() => this.onProductManipulate(type)}>
+                            <Button variant="contained" onClick={() => this.productManipulateHandler(type)}>
                                 {type === 'create'
                                     ? 'Create'
                                     : type === 'edit'
@@ -254,7 +287,7 @@ class Products extends Component {
                         <div className="FormButtonEach">
                             <Button variant="contained" onClick={this.onCloseModal}>
                                 Cancel
-                        </Button>
+                            </Button>
                         </div>
                     </div>
                 </div>
@@ -262,8 +295,26 @@ class Products extends Component {
         )
     }
 
+    renderTables() {
+        const { data, headers } = this.state
+        return (
+            <div className="MainContainer">
+                {!data.length
+                    ? <div className="NoProducts">No Products To Display!!!</div>
+                    : <div className="TableList">
+                        <Table
+                            headers={headers}
+                            data={data}
+                            onEditDetails={this.onEditDetails}
+                            onDeleteProduct={this.onDeleteProduct} />
+                    </div>
+                }
+            </div>
+        )
+    }
+
     render() {
-        const { headers, data, axios, create, edit } = this.state;
+        const { axios, create, edit, radioButtons } = this.state;
         const type = create
             ? 'create'
             : edit
@@ -273,63 +324,29 @@ class Products extends Component {
         return (
             <div className="Container">
                 <ToastContainer />
+                <div className="HeadingContainer m-b-md">Ayurvedic Products</div>
+                <hr />
                 <div className="ButtonContainer">
                     <div className="UpperContainer">
-                        <div className="UpperQues">
-                            <div className="InnerText">Filter</div>
-                        </div>
+                        <div className="Filter">Apply Filter</div>
                         <div className="UpperRadio" onChange={this.selectRadioHandler}>
-                            <div className="pretty p-default p-curve">
-                                <input value="Face Cleansers" type="radio" name="radio1" />
-                                <div className="state p-primary-o">
-                                    <label className="RadioText">Face Cleansers</label>
-                                </div>
-                            </div>
-                            <div className="pretty p-default p-curve">
-                                <input value="Toner and Mists" type="radio" name="radio1" />
-                                <div className="state p-primary-o">
-                                    <label className="RadioText">Toner and Mists</label>
-                                </div>
-                            </div>
-                            <div className="pretty p-default p-curve">
-                                <input value="Eye Care" type="radio" name="radio1" />
-                                <div className="state p-primary-o">
-                                    <label className="RadioText">Eye Care</label>
-                                </div>
-                            </div>
-                            <div className="pretty p-default p-curve">
-                                <input value="all" type="radio" name="radio1" />
-                                <div className="state p-primary-o">
-                                    <label className="RadioText">All</label>
-                                </div>
-                            </div>
+                            {radioButtons.map(each =>
+                                <RadioButton text={each} />
+                            )}
                         </div>
                     </div>
-                    <Button
-                        onClick={this.onCreateProduct}
-                        variant="contained"
-                        color="default"
-                        className="button">
-                        Create User
+                    <MuiThemeProvider theme={theme}>
+                        <Button
+                            onClick={this.onCreateProduct}
+                            variant="contained"
+                            color="primary"
+                            className="button">
+                            Create User
                         </Button>
+                    </MuiThemeProvider>
                 </div>
                 {!axios
-                    ? (
-                        <Fragment>
-                            <div className="MainContainer">
-                                {!data.length
-                                    ? <div className="NoProducts">No Products To Display!!!</div>
-                                    : <div className="TableList">
-                                        <Table
-                                            headers={headers}
-                                            data={data}
-                                            onEditDetails={this.onEditDetails}
-                                            onDeleteProduct={this.onDeleteProduct} />
-                                    </div>
-                                }
-                            </div>
-                        </Fragment>
-                    )
+                    ? (this.renderTables())
                     : (
                         <div className="SpinnerContainer">
                             <Spinner />
@@ -337,7 +354,7 @@ class Products extends Component {
                     )
                 }
                 <div className="Pagination">
-                    {this.pagination()}
+                    {this.renderPagination()}
                 </div>
                 {this.renderModal(type)}
             </div>

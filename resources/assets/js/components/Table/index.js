@@ -23,12 +23,12 @@ const Table = ({ headers, data, onEditDetails, onDeleteProduct }) => {
                         <td>${each.amount} USD</td>
                         <td>{each.type}</td>
                         <td>{each.quantity}</td>
-                        <td style={{ width: 400 }}>{each.description}</td>
+                        <td style={{ width: 450 }}>{each.description}</td>
                         <td>
-                            <IconButton onClick={() => onEditDetails(each.id)} aria-label="Edit">
+                            <IconButton color="primary" onClick={() => onEditDetails(each.id)} aria-label="Edit">
                                 <EditIcon />
                             </IconButton>
-                            <IconButton onClick={() => onDeleteProduct(each.id)} aria-label="Delete">
+                            <IconButton color="secondary" onClick={() => onDeleteProduct(each.id)} aria-label="Delete">
                                 <DeleteIcon />
                             </IconButton>
                             {/* <Button onClick={onEditDetails}>Edit</Button>
